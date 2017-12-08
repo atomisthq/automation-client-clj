@@ -192,7 +192,7 @@
        command - incoming Command Request data
        slack   - slack Message data where all actions may refer to
                  other CommandHandlers"
-  [command slack]
+  [command slack & [opts]]
   (let [num (atom 0)
         slack-with-action-ids
         (update-when-seq
@@ -212,7 +212,8 @@
                               action)) actions))))
               attachments)))]
 
-    (-> (select-keys command [:corrid :correlation_context :users :channels])
+    (-> (select-keys command [:corrid :correlation_context])
+        (merge opts)
         (assoc :content_type "application/x-atomist-slack+json")
         (assoc :message
                (-> slack-with-action-ids
@@ -227,8 +228,7 @@
                                (mapv
                                  (fn [action]
                                    (if (:rug action)
-                                     (let [action-id (get-in action [:rug :id])
-                                           parameter_name (get-in action [:rug :rug :parameter_name])]
+                                     (let [action-id (get-in action [:rug :id])]
                                        (case (:type action)
                                          "button"
                                          (-> action
@@ -247,7 +247,5 @@
         (assoc :actions (->> (:attachments slack-with-action-ids)
                              (mapcat :actions)
                              (filter :rug)
-                             (map #(if-let [p (-> % :rug :rug :parameter_name)]
-                                     (assoc-in % [:rug :parameter_name]p ) %))
                              (mapv :rug)))
         (send-on-socket))))
