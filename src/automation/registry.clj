@@ -26,22 +26,22 @@
   (let [ns (->> handlers (map meta) (map :ns) (into #{}))
         name-map (fn [type handlers]
                    (reduce
-                     (fn [acc h]
-                       (if (type (meta h))
-                         (assoc acc (-> h meta type :name) h)
-                         acc))
-                     {}
-                     handlers))
+                    (fn [acc h]
+                      (if (type (meta h))
+                        (assoc acc (-> h meta type :name) h)
+                        acc))
+                    {}
+                    handlers))
         types (fn [type handlers]
                 (remove nil? (map #(-> % meta type) handlers)))]
     (if (= 1 (count ns))
       (->>
-        @registry
-        (setval [:commands END] (types :command handlers))
-        (setval [:events END] (types :event handlers))
-        (transform [:command-handler-map] #(merge % (name-map :command handlers)))
-        (transform [:event-handler-map] #(merge % (name-map :event handlers)))
-        (reset! registry))
+       @registry
+       (setval [:commands END] (types :command handlers))
+       (setval [:events END] (types :event handlers))
+       (transform [:command-handler-map] #(merge % (name-map :command handlers)))
+       (transform [:event-handler-map] #(merge % (name-map :event handlers)))
+       (reset! registry))
       (log/error "all handlers must come from the same ns"))))
 
 (defn command-handler [o]
@@ -53,7 +53,7 @@
   (let [{:keys [type operationName team_id team_name correlation_id]} (:extensions o)]
     (if-let [handler (get-in @registry [:event-handler-map operationName])]
       (apply handler [(assoc o :correlation_context {:team {:id team_id :name team_name}}
-                               :corrid (or correlation_id "missing"))])
+                             :corrid (or correlation_id "missing"))])
       (log/warnf "no event handler for %s" operationName))))
 
 (defn add-all-handlers [ns]
@@ -78,5 +78,5 @@
 
 (declare registrations)
 (mount/defstate registrations
-                :start (init)
-                :stop (reset! registry empty-registry))
+  :start (init)
+  :stop (reset! registry empty-registry))
