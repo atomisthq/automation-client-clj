@@ -15,7 +15,7 @@
                  [mount "0.1.11"]
                  [environ "1.0.0"]
                  [cprop "0.1.11"]
-                 [diehard "0.5.0"]
+                 [diehard "0.7.0"]
                  [com.rpl/specter "1.0.5"]
 
                  ;; logging
