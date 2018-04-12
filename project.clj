@@ -21,7 +21,7 @@
                  [ch.qos.logback/logback-classic "1.1.7"]
                  [org.slf4j/slf4j-api "1.7.21"]
                  [io.clj/logging "0.8.1"]
-                 [com.rpl/specter "1.1.0"]]
+                 [com.rpl/specter "1.0.5"]]
 
   :plugins [[lein-environ "1.1.0"]
             [environ/environ.lein "0.3.1"]]
