@@ -8,13 +8,14 @@ See our example project (link when it's open sourced in a minute)
 
 ### Usage
 
-You'll need a `config.edn` file that defines at least 3 things:
+You'll need to pass in mount arguments containing at least:
 
 ```clj
-{:team-id "your_team_id"
+{:automation-client-clj 
+  {:team-id "your_team_id"
  :automation-namespaces ["fingerprints"]
  :name "fingerprints-clj"
- :github-token "xxxxxxxxxxxxxx"}
+ :github-token "xxxxxxxxxxxxxx"}}
 ```
 
 * The `:team-id` is your Atomist team identifier.
@@ -29,7 +30,7 @@ You can start up the automation client in a repl using:
 ```clj
 (require '[com.atomist/automation.core])
 (require '[mount.core :as mount]'
-(mount/start)
+(mount/start (mount/with-args {:args :as-above})
 ```
 
 You can also clone and try a [sample automation here][sample].  This currently requires that you have created

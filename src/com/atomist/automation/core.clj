@@ -12,19 +12,12 @@
   (:import (clojure.lang ExceptionInfo)
            (java.util UUID)))
 
-(def staging-url "https://automation-staging.atomist.services")
-(def prod-url "https://automation.atomist.com")
-
 (defn get-token []
   (let [gt (or (System/getenv "ATOMIST_TOKEN") (cs/get-config-value [:github-token]))]
     (str "token " (or (:value gt) gt))))
 
 (defn automation-url [end]
-  (str (condp = (cs/get-config-value [:domain])
-         "staging.atomist.services." staging-url
-         "prod.atomist.services." prod-url
-         staging-url)
-       end))
+  (str (or (cs/get-config-value [:automation-api]) "https://automation.atomist.com") end))
 
 (defn get-registration []
   (->> (client/get (automation-url "/registration") {:headers {:authorization (get-token)}

@@ -82,5 +82,14 @@
 
 (declare registrations)
 (mount/defstate registrations
-  :start (init)
+  :start (do
+           (let [config (:automation-client-clj (mount/args))]
+             (if-not (and
+                      (:team-id config)
+                      (:github-token config)
+                      (:automation-namespaces config)
+                      (:name config)
+                      (:version config))
+               (throw (ex-info "team-id, github-token, automation-namespaces, name and version are all required arguments" config))))
+           (init))
   :stop (reset! registry empty-registry))
