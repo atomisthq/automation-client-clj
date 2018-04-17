@@ -4,6 +4,7 @@
             [mount.core :as mount]
             [clojure.tools.logging :as log]))
 
+(declare env)
 (mount/defstate env :start (load-config
                             :merge
                             [(mount/args)
