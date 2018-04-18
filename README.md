@@ -178,6 +178,16 @@ passed to your handler.
                                            :parameters     []}}]}]})
 ```
 
+### Custom Ingestions
+
+```
+;; define a vector of types
+;; attach metadata to the vector specifying at least one of the types as being root
+;; namespace must be among the namespaces scanned for handler/type registration
+(def ^{:ingester {:root_type "violation"}} violation
+  [{:kind "OBJECT" :name "violation" :fields [{:name "description" :type {:kind "SCALAR" :name "String"}}]}])
+```
+
 ### Releasing
 
 - Every commit to master results in a SNAPSHOT being built and published to Clojars
