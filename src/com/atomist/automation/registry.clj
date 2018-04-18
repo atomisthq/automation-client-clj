@@ -15,6 +15,7 @@
    :team_ids [(or (System/getenv "ATOMIST_TEAM") (cs/get-config-value [:team-id]))]
    :commands (or (:commands @registry) [])
    :events (or (:events @registry) [])
+   :ingesters (or (:ingesters @registry) [])
    :api_version "1"})
 
 (defn- add
@@ -34,12 +35,19 @@
                     {}
                     handlers))
         types (fn [type handlers]
-                (remove nil? (map #(-> % meta type) handlers)))]
+                (remove nil? (map #(-> % meta type) handlers)))
+        ingesters (fn [handlers]
+                    (->> handlers
+                         (filter #(-> % meta :ingester))
+                         (map (fn [type] (assoc (-> type meta :ingester)
+                                                :types (var-get type))))
+                         (into [])))]
     (if (= 1 (count ns))
       (->>
        @registry
        (setval [:commands END] (types :command handlers))
        (setval [:events END] (types :event handlers))
+       (setval [:ingesters END] (ingesters handlers))
        (transform [:command-handler-map] #(merge % (name-map :command handlers)))
        (transform [:event-handler-map] #(merge % (name-map :event handlers)))
        (reset! registry))
@@ -65,7 +73,7 @@
   (require ns)
   (->> (ns-publics ns)
        (vals)
-       (filter #(and (var? %) (or (-> % meta :command) (-> % meta :event))))
+       (filter #(and (var? %) (or (-> % meta :command) (-> % meta :event) (-> % meta :ingester))))
        (apply add)))
 
 (defn- init
@@ -75,9 +83,10 @@
     (add-all-handlers (symbol ns)))
   (log/infof "register %d commands" (->> (registration) :commands count))
   (log/infof "register %d events" (->> (registration) :events count))
-
+  (log/infof "register %d ingesters" (->> (registration) :ingesters count))
   (log/infof "commands:  %s" (->> (registration) :commands (map :name) (interpose ",") (apply str)))
   (log/infof "events:  %s" (->> (registration) :events (map :name) (interpose ",") (apply str)))
+  (log/infof "ingesters:  %s" (->> (registration) :ingesters (str)))
   @registry)
 
 (declare registrations)
