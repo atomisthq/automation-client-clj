@@ -157,9 +157,15 @@
 (defn- default-destination [o]
   (if (or (not (:destinations o)) (empty? (:destinations o)))
     (-> o
-        (update :destinations (constantly [(:source o)]))
+        (update :destinations (constantly [(merge
+                                            (:source o)
+                                            {:user_agent "slack"})]))
         (update-in [:destinations 0 :slack] #(dissoc % :user)))
     o))
+
+(defn default-team [o]
+  (update-in o [:destinations 0 :slack]
+             #(assoc % :team {:id (cs/get-config-value [:chat-team-id])})))
 
 (defn add-slack-source [command team-id team-name]
   (assoc command :source {:user_agent "slack"

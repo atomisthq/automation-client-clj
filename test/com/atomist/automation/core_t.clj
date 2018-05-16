@@ -73,24 +73,20 @@
                         :markdwn_in ["text"]
                         :actions [{:text "Continue"
                                    :type "button"
-                                   :atomist/command {:rug {:type "command_handler" :name "confirm-clean-team"}
-                                                     :command "confirm-clean-team"
+                                   :atomist/command {:command "confirm-clean-team"
                                                      :parameters [{:name "team-name" :value "team-name"}]}}
                                   {:text "Do something"
                                    :type "button"
-                                   :atomist/command {:rug {:type "command_handler" :name "do-something"}
-                                                     :command "do-something"
+                                   :atomist/command {:command "do-something"
                                                      :parameters [{:name "param" :value "val"}]}}]}]
                       :unfurl_links false
                       :unfurl_media false})]
-        (is (= [{:rug {:type "command_handler" :name "confirm-clean-team"}
-                 :parameters [{:name "team-name" :value "team-name"}]
+        (is (= [{:parameters [{:name "team-name" :value "team-name"}]
                  :command "confirm-clean-team"
                  :automation {:name nil
                               :version "0.0.1-SNAPSHOT"}
                  :id "confirm-clean-team-1"}
-                {:rug {:type "command_handler" :name "do-something"}
-                 :parameters [{:name "param" :value "val"}]
+                {:parameters [{:name "param" :value "val"}]
                  :automation {:name nil
                               :version "0.0.1-SNAPSHOT"}
                  :command "do-something"
@@ -122,17 +118,13 @@
                         :markdwn_in ["text"]
                         :actions [{:text "Select this"
                                    :type "select"
-                                   :atomist/command {:rug {:type "command_handler"
-                                                           :name "confirm-clean-team"}
-                                                     :command "confirm-clean-team"
+                                   :atomist/command {:command "confirm-clean-team"
                                                      :parameter_name "some-param"
                                                      :parameters [{:name "team-name" :value "team-name"}]}
                                    :options [{:text "Option1" :value "option1"}]}]}]
                       :unfurl_links false
                       :unfurl_media false})]
-        (is (= [{:rug {:type "command_handler"
-                       :name "confirm-clean-team"}
-                 :parameter_name "some-param"
+        (is (= [{:parameter_name "some-param"
                  :command "confirm-clean-team"
                  :automation {:name nil
                               :version "0.0.1-SNAPSHOT"}
