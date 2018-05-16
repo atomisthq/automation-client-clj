@@ -260,7 +260,7 @@
                             "select"
                             (-> %
                                 (dissoc :atomist/command)
-                                (assoc :name (str (-> % :atomist/command :command) "::" action-id)))
+                                (assoc :name (str "automation-command::" action-id)))
                             %))
                         %)
                      slack))
