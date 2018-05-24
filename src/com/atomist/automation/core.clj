@@ -244,7 +244,7 @@
                        #(if (:atomist/command %)
                           (-> %
                               (assoc-in [:atomist/command :id]
-                                        (str (get-in % [:atomist/command :rug :name])
+                                        (str (get-in % [:atomist/command :command])
                                              "-"
                                              (swap! num inc)))
                               (assoc-in [:atomist/command :automation]

@@ -10,7 +10,8 @@
                 (fn [x]
                   (is (= {:body "whatever"
                           :content_type "text/plain"
-                          :destinations [{:slack {:channel {:name "channel"}}}]
+                          :destinations [{:slack {:channel {:name "channel"}}
+                                          :user_agent "slack"}]
                           :source {:slack {:channel {:name "channel"}
                                            :user {:name "some-user"}}}}
                          x)))]
@@ -21,7 +22,8 @@
                 (fn [x]
                   (is (= {:body "whatever"
                           :content_type "text/plain"
-                          :destinations [{:slack {:channel {:name "general"}}}]
+                          :destinations [{:slack {:channel {:name "general"}}
+                                          :user_agent "slack"}]
                           :source {:slack {:channel {:name "notgeneral"}
                                            :user {:name "some-user"}}}}
                          x)))]
@@ -34,7 +36,8 @@
                 (fn [x]
                   (is (= {:body "whatever"
                           :content_type "text/plain"
-                          :destinations [{:slack {:user {:name "some-other-user"}}}]
+                          :destinations [{:slack {:user {:name "some-other-user"}}
+                                          :user_agent "slack"}]
                           :source {:slack {:channel {:name "notgeneral"}
                                            :user {:name "some-user"}}}}
                          x)))]
@@ -46,7 +49,8 @@
   (with-redefs [com.atomist.automation.core/send-on-socket
                 (fn [x]
                   (is (= {:content_type "application/x-atomist-slack-file+json"
-                          :destinations [{:slack {:channel {:name "notgeneral"}}}]
+                          :destinations [{:slack {:channel {:name "notgeneral"}}
+                                          :user_agent "slack"}]
                           :source {:slack {:channel {:name "notgeneral"}
                                            :user {:name "some-user"}}}}
                          (dissoc x :body)))
@@ -135,7 +139,7 @@
         ;; validate that the Message is right
         (is (= [{:text "Select this"
                  :type "select"
-                 :name "confirm-clean-team::confirm-clean-team-1"
+                 :name "automation-command::confirm-clean-team-1"
                  :options [{:text "Option1" :value "option1"}]}]
                (->> (json/read-str (:body message) :key-fn keyword)
                     :attachments
