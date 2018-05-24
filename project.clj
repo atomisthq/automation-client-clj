@@ -24,7 +24,8 @@
                  [com.rpl/specter "1.1.0"]]
 
   :plugins [[lein-environ "1.1.0"]
-            [environ/environ.lein "0.3.1"]]
+            [environ/environ.lein "0.3.1"]
+            [lein-dynamodb-local "0.2.10"]]
 
   :min-lein-version "2.6.1" :deploy-repositories [["clojars" {:url "https://clojars.org/repo"
                                                               :username :env/clojars_username
