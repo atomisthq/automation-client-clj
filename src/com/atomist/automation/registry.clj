@@ -97,8 +97,8 @@
            (let [config (:automation-client-clj (mount/args))]
              (if-not (and
                       (or
-                        (:team-id config)
-                        (:team-ids config))
+                       (:team-id config)
+                       (:team-ids config))
                       (:github-token config)
                       (:automation-namespaces config)
                       (:name config)

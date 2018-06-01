@@ -22,16 +22,16 @@
                                       (team-id->chat-team-id))})))
 
 (s/defn get-team-preference :- {s/Str s/Any}
-        [team-id :- s/Str pref-name :- s/Str]
-        (let [prefs (some-> (api/run-query team-id "{ChatTeam {id preferences {name value}}}")
-                            :data
-                            :ChatTeam
-                            first
-                            :preferences
-                            (->>
-                             (filter #(= pref-name (:name %))))
-                            first
-                            :value
-                            (json/read-str))]
-          (log/infof "Loaded %s preference %s -> %s" team-id pref-name prefs)
-          prefs))
+  [team-id :- s/Str pref-name :- s/Str]
+  (let [prefs (some-> (api/run-query team-id "{ChatTeam {id preferences {name value}}}")
+                      :data
+                      :ChatTeam
+                      first
+                      :preferences
+                      (->>
+                       (filter #(= pref-name (:name %))))
+                      first
+                      :value
+                      (json/read-str))]
+    (log/infof "Loaded %s preference %s -> %s" team-id pref-name prefs)
+    prefs))
