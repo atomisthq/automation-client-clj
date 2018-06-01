@@ -1,4 +1,4 @@
-(defproject com.atomist/automation-client-clj "0.5.3"
+(defproject com.atomist/automation-client-clj "0.5.6"
   :description "Atomist automation client implementation in Clojure"
   :url "https://github.com/atomisthq/automation-client-clj"
   :license {:name "Eclipse Public License"
@@ -24,8 +24,7 @@
                  [com.rpl/specter "1.1.0"]]
 
   :plugins [[lein-environ "1.1.0"]
-            [environ/environ.lein "0.3.1"]
-            [lein-dynamodb-local "0.2.10"]]
+            [environ/environ.lein "0.3.1"]]
 
   :min-lein-version "2.6.1" :deploy-repositories [["clojars" {:url "https://clojars.org/repo"
                                                               :username :env/clojars_username

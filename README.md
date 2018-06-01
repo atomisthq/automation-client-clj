@@ -13,9 +13,9 @@ You'll need to pass in mount arguments containing at least:
 ```clj
 {:automation-client-clj 
   {:team-id "your_team_id"
- :automation-namespaces ["fingerprints"]
- :name "fingerprints-clj"
- :github-token "xxxxxxxxxxxxxx"}}
+   :automation-namespaces ["fingerprints"]
+   :name "fingerprints-clj"
+   :github-token "xxxxxxxxxxxxxx"}}
 ```
 
 * The `:team-id` is your Atomist team identifier.

@@ -139,7 +139,7 @@
   (let [response
         (client/post
          (automation-url (format "/graphql/team/%s" team-id))
-         {:body (json/json-str {:query query :variables []})
+         {:body (json/json-str {:query query :variables {}})
           :headers {:authorization (format "Bearer %s" (-> @connection :response :jwt))}
           :throw-exceptions false})]
     (if (and (not (:errors response)) (= 200 (:status response)))
@@ -162,10 +162,6 @@
                                             {:user_agent "slack"})]))
         (update-in [:destinations 0 :slack] #(dissoc % :user)))
     o))
-
-(defn default-team [o]
-  (update-in o [:destinations 0 :slack]
-             #(assoc % :team {:id (cs/get-config-value [:chat-team-id])})))
 
 (defn add-slack-source [command team-id team-name]
   (assoc command :source {:user_agent "slack"
