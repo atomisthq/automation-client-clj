@@ -193,3 +193,4 @@ passed to your handler.
 - Every commit to master results in a SNAPSHOT being built and published to Clojars
 - Create a semver tag to do a proper release to Clojars - it must match the numerical part of the project version
 (i.e. without the -SNAPSHOT)
+
