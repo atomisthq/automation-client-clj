@@ -13,8 +13,10 @@
            (java.util UUID)))
 
 (defn get-token []
-  (let [gt (or (System/getenv "ATOMIST_TOKEN") (cs/get-config-value [:github-token]))]
-    (str "token " (or (:value gt) gt))))
+  (if-let [api-key (some-> (mount/args) :automation-client-clj :api-key)]
+    (str "Bearer " api-key)
+    (let [gt (or (System/getenv "ATOMIST_TOKEN") (cs/get-config-value [:github-token]))]
+      (str "token " (or (:value gt) gt)))))
 
 (defn automation-url [end]
   (str (or (cs/get-config-value [:automation-api]) "https://automation.atomist.com") end))
