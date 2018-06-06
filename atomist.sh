@@ -1,3 +1,3 @@
 #!/bin/bash
 
-lein test
+lein do test, jar
