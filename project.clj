@@ -26,7 +26,7 @@
   :plugins [[lein-environ "1.1.0"]
             [environ/environ.lein "0.3.1"]]
 
-  :min-lein-version "2.6.1" 
+  :min-lein-version "2.6.1"
   :repositories [["releases" {:url "https://clojars.org/repo"
                               :username :env/clojars_username
                               :password :env/clojars_password
