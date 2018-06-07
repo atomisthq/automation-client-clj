@@ -1,6 +1,5 @@
 #!/bin/bash
 
-
 die(){
   echo $1
   exit 1
