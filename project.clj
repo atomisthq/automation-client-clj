@@ -26,10 +26,11 @@
   :plugins [[lein-environ "1.1.0"]
             [environ/environ.lein "0.3.1"]]
 
-  :min-lein-version "2.6.1" :deploy-repositories [["clojars" {:url "https://clojars.org/repo"
-                                                              :username :env/clojars_username
-                                                              :password :env/clojars_password
-                                                              :sign-releases false}]]
+  :min-lein-version "2.6.1" 
+  :repositories [["releases" {:url "https://clojars.org/repo"
+                              :username :env/clojars_username
+                              :password :env/clojars_password
+                              :sign-releases false}]]
 
   :profiles {:dev {:dependencies [[org.clojure/test.check "0.9.0"]
                                   [ring/ring-mock "0.3.0"]
