@@ -8,7 +8,8 @@
             [com.atomist.automation.registry :as registry]
             [clojure.core.async :as async]
             [com.atomist.automation.restart :refer [with-restart]]
-            [com.rpl.specter :as specter])
+            [com.rpl.specter :as specter]
+            [clojure.repl])
   (:import (clojure.lang ExceptionInfo)
            (java.util UUID)))
 
@@ -53,25 +54,43 @@
           (log/errorf "failed to register %s" response)
           (throw (ex-info "failed to register" response)))))))
 
-(defn get-parameter-value [request parameter-name]
-  (some->> (get-in request [:parameters])
+(defn ^:api get-parameter-value
+  "search command request for parameter
+     params
+       o              - command request
+       parameter-name - string name
+     returns nil if there's no parameter"
+  [o parameter-name]
+  (some->> (get-in o [:parameters])
            (filter #(= parameter-name (:name %)))
            first
            :value))
 
-(defn mapped-parameter-value [request parameter-name]
-  (some->> (get-in request [:mapped_parameters])
+(defn ^:api mapped-parameter-value
+  "search command request for mapped parameter
+    params
+      o              - command request
+      parameter-name - string name
+    returns nil if there's no parameter"
+  [o parameter-name]
+  (some->> (get-in o [:mapped_parameters])
            (filter #(= parameter-name (:name %)))
            first
            :value))
 
-(defn get-secret-value [request secret-name]
-  (if (= "1" (:api_version request))
-    (some->> (get-in request [:secrets])
+(defn ^:api get-secret-value
+  "search command request for mapped parameter
+    params
+      o              - command request
+      secret-name - string name
+    returns nil if there's no parameter"
+  [o secret-name]
+  (if (= "1" (:api_version o))
+    (some->> (get-in o [:secrets])
              (filter #(= secret-name (:uri %)))
              first
              :value)
-    (some->> (get-in request [:secrets])
+    (some->> (get-in o [:secrets])
              (filter #(= secret-name (:uri %)))
              first
              :name)))
@@ -137,7 +156,13 @@
   :start (with-restart #'connect-automation-api #'close-automation-api #'send-new-socket)
   :stop (async/>!! api-connection :stop))
 
-(defn run-query [team-id query]
+(defn ^:api run-query
+  "An automation can run queries on an open-ended set of teams (it can be registered to multiple teams.
+     params
+       team-id  - Atomist workspace id
+       query    - string graphql query
+     returns nil for errors or the body of the query response"
+  [team-id query]
   (let [response
         (client/post
          (automation-url (format "/graphql/team/%s" team-id))
@@ -169,33 +194,55 @@
   (assoc command :source {:user_agent "slack"
                           :slack {:team {:id team-id :name team-name}}}))
 
-(defn success-status [command]
-  (-> (select-keys command [:correlation_id :api_version :automation :team :command])
+(defn ^:api success-status
+  "on command request, send status that the invocation was successful"
+  [o]
+  (-> (select-keys o [:correlation_id :api_version :automation :team :command])
       (add-slack-details)
       (assoc :status {:code 0 :reason "success"})
       (send-on-socket)))
 
-(defn failed-status [command]
-  (-> (select-keys command [:correlation_id :api_version :automation :team :command])
+(defn ^:api failed-status
+  "on command request, send status that the invocation failed"
+  [o]
+  (-> (select-keys o [:correlation_id :api_version :automation :team :command])
       (add-slack-details)
       (assoc :status {:code 1 :reason "failure"})
       (send-on-socket)))
 
-(defn simple-message [command s]
-  (-> (select-keys command [:correlation_id :api_version :automation :team :source :command :destinations])
+(defn ^:api simple-message
+  "send simple message as bot
+     params
+       o - command request or event
+       s - string message"
+  [o s]
+  (-> (select-keys o [:correlation_id :api_version :automation :team :source :command :destinations])
       (assoc :content_type "text/plain")
       (assoc :body s)
       (default-destination)
       (send-on-socket)))
 
-(defn snippet-message [command content-str filetype title]
-  (-> (select-keys command [:correlation_id :api_version :automation :team :source :command :destinations])
+(defn ^:api snippet-message
+  "send snippet as bot
+    params
+      o           - command request or event
+      content-str - content as string
+      filetype    - valid slack filetype
+      title       - string title"
+  [o content-str filetype title]
+  (-> (select-keys o [:correlation_id :api_version :automation :team :source :command :destinations])
       (assoc :content_type "application/x-atomist-slack-file+json")
       (assoc :body (json/write-str {:content content-str :filetype filetype :title title}))
       (default-destination)
       (send-on-socket)))
 
-(defn ingest [o x channel]
+(defn ^:api ingest
+  "ingest a new custom event
+     params
+       o         - incoming event or command request
+       x         - custom event
+       channel   - name of custom event channel"
+  [o x channel]
   (-> x
       (select-keys [:api_version :correlation_id :team :automation])
       (assoc :content_type "application/json"
@@ -204,13 +251,13 @@
                              :ingester {:root_type channel}}])
       (send-on-socket)))
 
-(defn pprint-data-message [command data]
+(defn pprint-data-message [o data]
   (let [message (str "```"
                      (-> data
                          (clojure.pprint/pprint)
                          (with-out-str))
                      "```")]
-    (simple-message command message)))
+    (simple-message o message)))
 
 (defn guid []
   (UUID/randomUUID))
@@ -220,17 +267,30 @@
     (update a-map k fn)
     a-map))
 
-(defn channel [o c]
+(defn ^:api channel
+  "set message destination channel name
+     params
+       o      - command request or incoming event payload
+       c      - string name of message channel"
+  [o c]
   (-> o
       (default-destination)
       (update-in [:destinations 0 :slack] (fn [x] (-> x (assoc :channel {:name c}) (dissoc :user))))))
 
-(defn user [o u]
+(defn ^:api user
+  "set message destination to user DM
+     params
+       o      - command request or incoming event payload
+       c      - string name of user to DM"
+  [o u]
   (-> o
       (default-destination)
       (update-in [:destinations 0 :slack] (fn [x] (-> x (assoc :user {:name u}) (dissoc :channel))))))
 
-(defn get-team-id
+(defn ^:api get-team-id
+  "get team-id from incoming command request or event payload
+     params
+       o - incoming command request or event payload"
   [o]
   ;; we also have (-> o :correlation_context :team :id
   (or (-> o :extensions :team_id)
@@ -269,16 +329,16 @@
                         %)
                      slack))
 
-(defn actionable-message
+(defn ^:api actionable-message
   "  params
-       command - incoming Command Request data
+       o       - incoming command request or event payload
        slack   - slack Message data where all actions may refer to
                  other CommandHandlers"
-  [command slack & [opts]]
+  [o slack & [opts]]
 
   (let [commands-with-ids (add-ids-to-commands slack)]
 
-    (-> (select-keys command [:correlation_id :api_version :automation :team :source :command :destinations])
+    (-> (select-keys o [:correlation_id :api_version :automation :team :source :command :destinations])
 
         (merge opts)
         (assoc :content_type "application/x-atomist-slack+json")
@@ -291,3 +351,8 @@
                              (mapv :atomist/command)))
         (default-destination)
         (send-on-socket))))
+
+(defn print-api []
+  (->> (ns-publics *ns*)
+       (filter #(contains? (meta (second %)) :api))
+       (map #(#'clojure.repl/print-doc (meta (second %))))))
