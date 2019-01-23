@@ -222,6 +222,14 @@
       (default-destination)
       (send-on-socket)))
 
+(defn ^:api continue [o params]
+  (-> (select-keys o [:correlation_id :api_version :automation :team :source :command :destinations])
+      (assoc :content_type "application/x-atomist-continuation+json")
+      (assoc :parameter_specs params)
+      (assoc :params (:params o))
+      (default-destination)
+      (send-on-socket)))
+
 (defn ^:api snippet-message
   "send snippet as bot
     params
