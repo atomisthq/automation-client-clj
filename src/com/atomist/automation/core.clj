@@ -223,9 +223,9 @@
       (send-on-socket)))
 
 (defn ^:api continue [o params]
-  (-> (select-keys o [:correlation_id :parameters :api_version :automation :team :source :command :destinations])
+  (-> (select-keys o [:correlation_id :parameters :api_version :automation :team :source :command :destinations :parameter_specs])
       (assoc :content_type "application/x-atomist-continuation+json")
-      (assoc :parameter_specs params)
+      (update :parameter_specs (fnil concat []) params)
       (default-destination)
       (send-on-socket)))
 
