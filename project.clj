@@ -12,7 +12,7 @@
                  [stylefruits/gniazdo "1.0.1"]
 
                  ;; util
-                 [mount "0.1.14"]
+                 [mount "0.1.15"]
                  [environ "1.0.0"]
                  [diehard "0.7.0"]
 
