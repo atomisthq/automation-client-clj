@@ -12,13 +12,13 @@
                  [stylefruits/gniazdo "1.0.1"]
 
                  ;; util
-                 [mount "0.1.14"]
+                 [mount "0.1.15"]
                  [environ "1.0.0"]
                  [diehard "0.7.0"]
 
                  ;; logging
                  [org.clojure/tools.logging "0.3.1"]
-                 [ch.qos.logback/logback-classic "1.1.7"]
+                 [ch.qos.logback/logback-classic "1.2.3"]
                  [org.slf4j/slf4j-api "1.7.21"]
                  [io.clj/logging "0.8.1"]
                  [com.rpl/specter "1.1.1"]]
