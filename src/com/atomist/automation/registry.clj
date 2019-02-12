@@ -99,10 +99,10 @@
                       (or
                        (:team-id config)
                        (:team-ids config))
-                      (:api-token config)
+                      (:api-key config)
                       (:automation-namespaces config)
                       (:name config)
                       (:version config))
-               (throw (ex-info "team-id, api-token, automation-namespaces, name and version are all required arguments" config))))
+               (throw (ex-info "team-id, api-key, automation-namespaces, name and version are all required arguments" config))))
            (init))
   :stop (reset! registry empty-registry))
