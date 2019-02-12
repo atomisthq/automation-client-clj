@@ -16,7 +16,7 @@
 (defn get-token []
   (if-let [api-key (some-> (mount/args) :automation-client-clj :api-key)]
     (str "Bearer " api-key)
-    (let [gt (or (System/getenv "ATOMIST_TOKEN") (cs/get-config-value [:github-token]))]
+    (let [gt (or (System/getenv "ATOMIST_TOKEN") (cs/get-config-value [:api-key]))]
       (str "token " (or (:value gt) gt)))))
 
 (defn automation-url [end]
