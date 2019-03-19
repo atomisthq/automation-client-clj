@@ -187,7 +187,10 @@
         (update :destinations (constantly [(merge
                                             (:source o)
                                             {:user_agent "slack"})]))
-        (update-in [:destinations 0 :slack] #(dissoc % :user)))
+        (update-in [:destinations 0] (fn [destination]
+                                       (if (some? (:slack destination))
+                                         (update destination :slack dissoc :user)
+                                         destination))))
     o))
 
 (defn add-slack-source [command team-id team-name]
