@@ -178,9 +178,6 @@
   (log/debugf "send-on-socket %s" (with-out-str (clojure.pprint/pprint x)))
   (ws/send-msg (-> @connection :connection) (json/json-str x)))
 
-(defn- add-slack-details [command]
-  (assoc command :source [(:source command)]))
-
 (defn- default-destination [o]
   (if (or (not (:destinations o)) (empty? (:destinations o)))
     (-> o
@@ -193,23 +190,17 @@
                                          destination))))
     o))
 
-(defn add-slack-source [command team-id team-name]
-  (assoc command :source {:user_agent "slack"
-                          :slack {:team {:id team-id :name team-name}}}))
-
 (defn ^:api success-status
   "on command request, send status that the invocation was successful"
   [o]
-  (-> (select-keys o [:correlation_id :api_version :automation :team :command])
-      (add-slack-details)
+  (-> (select-keys o [:correlation_id :api_version :automation :team :command :source])
       (assoc :status {:code 0 :reason "success"})
       (send-on-socket)))
 
 (defn ^:api failed-status
   "on command request, send status that the invocation failed"
   [o]
-  (-> (select-keys o [:correlation_id :api_version :automation :team :command])
-      (add-slack-details)
+  (-> (select-keys o [:correlation_id :api_version :automation :team :command :source])
       (assoc :status {:code 1 :reason "failure"})
       (send-on-socket)))
 
