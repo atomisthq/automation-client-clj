@@ -210,14 +210,14 @@
        o - command request or event
        s - string message"
   [o s]
-  (-> (select-keys o [:correlation_id :api_version :automation :team :source :command :destinations])
+  (-> (select-keys o [:correlation_id :api_version :automation :team :source :command :destinations :id])
       (assoc :content_type "text/plain")
       (assoc :body s)
       (default-destination)
       (send-on-socket)))
 
 (defn ^:api continue [o params]
-  (-> (select-keys o [:correlation_id :parameters :api_version :automation :team :source :command :destinations :parameter_specs])
+  (-> (select-keys o [:correlation_id :parameters :api_version :automation :team :source :command :destinations :parameter_specs :id])
       (assoc :content_type "application/x-atomist-continuation+json")
       (update :parameter_specs (fnil concat []) params)
       (default-destination)
@@ -231,9 +231,17 @@
       filetype    - valid slack filetype
       title       - string title"
   [o content-str filetype title]
-  (-> (select-keys o [:correlation_id :api_version :automation :team :source :command :destinations])
+  (-> (select-keys o [:correlation_id :api_version :automation :team :source :command :destinations :id])
       (assoc :content_type "application/x-atomist-slack-file+json")
       (assoc :body (json/write-str {:content content-str :filetype filetype :title title}))
+      (default-destination)
+      (send-on-socket)))
+
+(defn ^:api delete-message
+  [o]
+  (-> (select-keys o [:correlation_id :api_version :automation :team :source :command :destinations :id])
+      (assoc :content_type "application/x-atomist-delete")
+      (assoc :timestamp (System/currentTimeMillis))
       (default-destination)
       (send-on-socket)))
 
@@ -339,10 +347,11 @@
 
   (let [commands-with-ids (add-ids-to-commands slack)]
 
-    (-> (select-keys o [:correlation_id :api_version :automation :team :source :command :destinations])
+    (-> (select-keys o [:correlation_id :api_version :automation :team :source :command :destinations :id :post_mode])
 
         (merge opts)
         (assoc :content_type "application/x-atomist-slack+json")
+        (assoc :timestamp (System/currentTimeMillis))
         (assoc :body (-> commands-with-ids
                          (transform-to-slack-actions)
                          (json/json-str)))
