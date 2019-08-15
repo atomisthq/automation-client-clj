@@ -28,7 +28,7 @@ You'll need to pass in mount arguments containing at least:
 You can start up the automation client in a repl using:
 
 ```clj
-(require '[com.atomist/automation.core])
+(require '[com.atomist.automation.core])
 (require '[mount.core :as mount]'
 (mount/start (mount/with-args {:args :as-above})
 ```
