@@ -12,4 +12,3 @@ export VERSION=$(head -n 1 project.clj | cut -d ' ' -f3 | cut -d '"' -f2 | cut -
 
 echo "Building lein project with version $VERSION"
 lein do test, jar || die "Build failed"
-lein deploy || die "Deploy failed"

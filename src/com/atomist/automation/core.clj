@@ -11,7 +11,9 @@
             [com.rpl.specter :as specter]
             [clojure.repl])
   (:import (clojure.lang ExceptionInfo)
-           (java.util UUID)))
+           (java.util UUID)
+           (org.eclipse.jetty.util.ssl SslContextFactory)
+           (org.eclipse.jetty.websocket.client WebSocketClient)))
 
 (defn get-token []
   (if-let [api-key (some-> (mount/args) :automation-client-clj :api-key)]
@@ -36,13 +38,13 @@
   []
   (let [auth-header (get-token)
         url (automation-url "/registration")]
-    (log/info (registry/registration))
+    #_(log/info (registry/registration))
     (log/info url)
     (let [response (client/post url
                                 {:body (json/write-str (registry/registration))
                                  :content-type :json
                                  :headers {:authorization auth-header}
-                                 :socket-timeout 10000
+                                 :socket-timeout 60000
                                  :conn-timeout 5000
                                  :accept :json
                                  :throw-exceptions false})]
@@ -103,13 +105,18 @@
     (log/info "response " response)
 
     {:response response
-     :connection (ws/connect
-                  (:url response)
-                  :on-receive on-receive
-                  :on-error (fn [e] (log/error e "error processing websocket"))
-                  :on-close (fn [code message]
-                              (log/warnf "websocket closing (%d):  %s" code message)
-                              (async/go (async/>! channel-closed :channel-closed))))}))
+     :connection
+     (let [client (new WebSocketClient (new SslContextFactory))]
+       (.setMaxTextMessageSize (.getPolicy client) 500000)
+       (.start client)
+       (ws/connect
+        (:url response)
+        :client client
+        :on-receive on-receive
+        :on-error (fn [e] (log/error e "error processing websocket"))
+        :on-close (fn [code message]
+                    (log/warnf "websocket closing (%d):  %s" code message)
+                    (async/go (async/>! channel-closed :channel-closed)))))}))
 
 (defn- close-automation-api [{:keys [connection]}]
   (try
@@ -328,7 +335,7 @@
                             "button"
                             (-> %
                                 (dissoc :atomist/command)
-                                (assoc :name (str  "automation-command::" action-id))
+                                (assoc :name (str "automation-command::" action-id))
                                 (assoc :value action-id))
                             "select"
                             (-> %
