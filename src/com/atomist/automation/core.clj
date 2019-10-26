@@ -107,7 +107,7 @@
     {:response response
      :connection
      (let [client (new WebSocketClient (new SslContextFactory))]
-       (.setMaxTextMessageSize (.getPolicy client) 500000)
+       (.setMaxTextMessageSize (.getPolicy client) 2000000)
        (.start client)
        (ws/connect
         (:url response)
@@ -169,16 +169,18 @@
        team-id  - Atomist workspace id
        query    - string graphql query
      returns nil for errors or the body of the query response"
-  [team-id query]
-  (let [response
-        (client/post
-         (automation-url (format "/graphql/team/%s" team-id))
-         {:body (json/json-str {:query query :variables {}})
-          :headers {:authorization (format "Bearer %s" (-> @connection :response :jwt))}
-          :throw-exceptions false})]
-    (if (and (not (:errors response)) (= 200 (:status response)))
-      (-> response :body (json/read-str :key-fn keyword))
-      (log/warnf "failure to run %s query %s\n%s" team-id query response))))
+  ([team-id query variables]
+   (let [response
+         (client/post
+          (automation-url (format "/graphql/team/%s" team-id))
+          {:body (json/json-str {:query query :variables variables})
+           :headers {:authorization (get-token)}
+           :throw-exceptions false})]
+     (if (and (not (:errors response)) (= 200 (:status response)))
+       (-> response :body (json/read-str :key-fn keyword))
+       (log/warnf "failure to run %s query %s\n%s" team-id query response))))
+  ([team-id query]
+   (run-query team-id query {})))
 
 (defn- send-on-socket [x]
   (log/infof "send-on-socket %s" x)
