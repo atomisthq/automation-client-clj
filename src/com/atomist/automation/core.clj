@@ -148,26 +148,26 @@
         (ws/send-msg (:connection @connection) (json/write-str {:pong (:ping o)})))
       (if (:data o)
         (long-running
-          (fn []
-            (try
-              (log/infof "received event %s" (->> o :data keys))
-              (log/debugf "event payload %s" (with-out-str (clojure.pprint/pprint o)))
-              (registry/event-handler o)
-              (catch Throwable t
-                (log/error t (format "problem processing the event loop %s" o))))))
+         (fn []
+           (try
+             (log/infof "received event %s" (->> o :data keys))
+             (log/debugf "event payload %s" (with-out-str (clojure.pprint/pprint o)))
+             (registry/event-handler o)
+             (catch Throwable t
+               (log/error t (format "problem processing the event loop %s" o))))))
         (long-running
-          (fn []
-            (log/info "Received commands:\n" (with-out-str (clojure.pprint/pprint (dissoc o :secrets))))
-            (try
-              (registry/command-handler o)
-              (success-status o)
-              (catch ExceptionInfo ex
-                (simple-message o (.getMessage ex))
-                (simple-message o (str "```" (with-out-str (clojure.pprint/pprint (ex-data ex))) "```"))
-                (failed-status o))
-              (catch Throwable t
-                (log/error t (str "problem in processing the command loop" (.getMessage t)))
-                (failed-status o)))))))))
+         (fn []
+           (log/info "Received commands:\n" (with-out-str (clojure.pprint/pprint (dissoc o :secrets))))
+           (try
+             (registry/command-handler o)
+             (success-status o)
+             (catch ExceptionInfo ex
+               (simple-message o (.getMessage ex))
+               (simple-message o (str "```" (with-out-str (clojure.pprint/pprint (ex-data ex))) "```"))
+               (failed-status o))
+             (catch Throwable t
+               (log/error t (str "problem in processing the command loop" (.getMessage t)))
+               (failed-status o)))))))))
 
 (declare api-connection)
 (mount/defstate api-connection
