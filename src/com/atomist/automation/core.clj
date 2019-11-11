@@ -193,7 +193,7 @@
   ([team-id query]
    (run-query team-id query {})))
 
-(defn- send-on-socket [x]
+(defn send-on-socket [x]
   (log/infof "send-on-socket %s" x)
   (log/debugf "send-on-socket %s" (with-out-str (clojure.pprint/pprint x)))
   (ws/send-msg (-> @connection :connection) (json/json-str x)))
