@@ -210,6 +210,15 @@
                                          destination))))
     o))
 
+(defn ^:api add-slack-destination
+  [o team]
+  (if (and (contains? team :id) (contains? team :name))
+    (assoc o :destinations [{:user_agent "slack"
+                             :slack {:team team}}])
+    (do
+      (log/warn "missing slack destination - not adding")
+      o)))
+
 (defn ^:api success-status
   "on command request, send status that the invocation was successful"
   [o]

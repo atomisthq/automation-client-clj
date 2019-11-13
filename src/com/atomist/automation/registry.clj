@@ -64,6 +64,7 @@
   (let [{:keys [operationName team_id team_name correlation_id]} (:extensions o)]
     (if-let [handler (get-in @registry [:event-handler-map operationName])]
       (apply handler [(assoc o
+                             :api_version "1"
                              :correlation_id (or correlation_id "missing")
                              :correlation_context {:team {:id team_id :name team_name}}
                              :corrid (or correlation_id "missing")
