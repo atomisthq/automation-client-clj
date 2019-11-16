@@ -210,6 +210,14 @@
                                          destination))))
     o))
 
+(defn ^:api add-team
+  [o team]
+  (if (and (contains? team :id) (contains? team :name))
+    (assoc o :team team)
+    (do
+      (log/warn "missing atomist Team - not adding")
+      o)))
+
 (defn ^:api add-slack-destination
   [o team]
   (if (and (contains? team :id) (contains? team :name))
