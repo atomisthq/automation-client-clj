@@ -195,14 +195,14 @@
 
 (defn match-type [x]
   (cond
-        (and (map? x) (contains? x :destinations) (= "application/x-atomist-delete" (:content_type x)))
-        :command-handler-reponse-delete
-        (and (map? x) (contains? x :destinations) (= "application/x-atomist-status" (:content_type x)))
-        :command-handler-reponse-status
-        (and (map? x) (contains? x :destinations))
-        :command-handler-reponse-message
-        :else
-        :unknown))
+    (and (map? x) (contains? x :destinations) (= "application/x-atomist-delete" (:content_type x)))
+    :command-handler-reponse-delete
+    (and (map? x) (contains? x :destinations) (= "application/x-atomist-status" (:content_type x)))
+    :command-handler-reponse-status
+    (and (map? x) (contains? x :destinations))
+    :command-handler-reponse-message
+    :else
+    :unknown))
 
 (defn send-on-socket [x]
   (log/infof "send-on-socket %s bytes (%s)" (keys x) (match-type x))
