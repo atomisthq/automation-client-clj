@@ -3,8 +3,8 @@
   :url "https://github.com/atomisthq/automation-client-clj"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
-  :dependencies [[org.clojure/clojure "1.10.0"]
-                 [org.clojure/core.async "0.4.474"]
+  :dependencies [[org.clojure/clojure "1.10.1"]
+                 [org.clojure/core.async "0.4.500"]
 
                  ;; websocket
                  [org.clojure/data.json "0.2.6"]
@@ -14,14 +14,14 @@
                  ;; util
                  [mount "0.1.16"]
                  [environ "1.0.0"]
-                 [diehard "0.7.0"]
+                 [diehard "0.9.0"]
 
                  ;; logging
-                 [org.clojure/tools.logging "0.3.1"]
+                 [org.clojure/tools.logging "0.5.0"]
                  [ch.qos.logback/logback-classic "1.2.3" :exclusions [org.slf4j/slf4j-api]]
                  [org.slf4j/slf4j-api "1.7.21"]
                  [io.clj/logging "0.8.1"]
-                 [com.rpl/specter "1.1.2"]]
+                 [com.rpl/specter "1.1.3"]]
 
   :plugins [[lein-environ "1.1.0"]
             [environ/environ.lein "0.3.1"]
