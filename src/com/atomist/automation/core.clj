@@ -193,9 +193,19 @@
   ([team-id query]
    (run-query team-id query {})))
 
+(defn match-type [x]
+  (cond
+        (and (map? x) (contains? x :destinations) (= "application/x-atomist-delete" (:content_type x)))
+        :command-handler-reponse-delete
+        (and (map? x) (contains? x :destinations) (= "application/x-atomist-status" (:content_type x)))
+        :command-handler-reponse-status
+        (and (map? x) (contains? x :destinations))
+        :command-handler-reponse-message
+        :else
+        :unknown))
+
 (defn send-on-socket [x]
-  (log/infof "send-on-socket %s" x)
-  (log/debugf "send-on-socket %s" (with-out-str (clojure.pprint/pprint x)))
+  (log/infof "send-on-socket %s bytes (%s)" (keys x) (match-type x))
   (ws/send-msg (-> @connection :connection) (json/json-str x)))
 
 (defn- default-destination [o]
@@ -210,22 +220,12 @@
                                          destination))))
     o))
 
-(defn ^:api add-team
-  [o team]
-  (if (and (contains? team :id) (contains? team :name))
-    (assoc o :team team)
-    (do
-      (log/warn "missing atomist Team - not adding")
-      o)))
-
 (defn ^:api add-slack-destination
   [o team]
   (if (and (contains? team :id) (contains? team :name))
     (assoc o :destinations [{:user_agent "slack"
                              :slack {:team team}}])
-    (do
-      (log/warn "missing slack destination - not adding")
-      o)))
+    o))
 
 (defn ^:api success-status
   "on command request, send status that the invocation was successful"
